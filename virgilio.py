@@ -68,10 +68,10 @@ class Virgilio:
         canti = []
         for file in files_path:
             canto_number = file.split("_")[1].split(".")[0]
-            verse_list = len(self.__readlines_canto__(canto_number))
+            verse_length = len(self.__readlines_canto__(canto_number))
             canto = {
                 "canto_number": int(canto_number),
-                "canto_len": verse_list
+                "canto_len": verse_length
             }
             canti.append(canto)
 
@@ -98,6 +98,14 @@ class Virgilio:
                 word_counts[word] += verse.count(word)
 
         return word_counts
+
+    def get_hell_verses(self):
+        files_path = os.listdir(self.directory)
+        verse_list = []
+        for file in files_path:
+            canto_number = file.split("_")[1].split(".")[0]
+            verse_list += self.__readlines_canto__(canto_number)
+        return "".join(verse_list)
 
 
 def main():
@@ -141,11 +149,16 @@ def main():
 
             # Exercise 8
             longest_canto = reader.get_longest_canto()
-            print(f"The longest canto is: {longest_canto}")
+            print(f"The longest canto is: {longest_canto}\n")
 
             # Exercise 9
             count_words = reader.count_words(canto_to_read, ["amore", "e", "spazio"])
-            print(count_words)
+            print(f"{count_words}\n")
+
+            # Exercise 10
+            hell_verses = reader.get_hell_verses()
+            print(f"{hell_verses}\n")
+
             break
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
