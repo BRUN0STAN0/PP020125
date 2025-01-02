@@ -58,6 +58,10 @@ class Virgilio:
         verses = "".join(verse_list)
         return verses
 
+    def get_longest_verse(self, canto_number: int):
+        verses = self.__readlines_canto__(canto_number)
+        return max(verses, key=len)
+
 
 def main():
     """This function allows you to call and execute the main program in an external module."""
@@ -87,11 +91,15 @@ def main():
 
             # Exercise 5
             verse_with_word = reader.get_verse_with_word(canto_to_read, word)
-            print(f"Primo utilizzo della parola {word}: {verse_with_word}")
+            print(f"Primo utilizzo della parola '{word}': {verse_with_word}")
 
             # Exercise 6
             verses_with_word = reader.get_verses_with_word(canto_to_read, word)
-            print(f"{verses_with_word}\n")
+            print(f"Tutti gli utilizzi della parola '{word}: {verses_with_word}\n")
+
+            # Exercise 6
+            longest_verse = reader.get_longest_verse(canto_to_read)
+            print(f"Verso piu lungo del canto: {longest_verse}\n")
 
             break
         except Exception as err:
