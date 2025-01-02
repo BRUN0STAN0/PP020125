@@ -44,7 +44,19 @@ class Virgilio:
         for line in canto:
             if word in line:
                 verse = line
+                break
         return verse
+
+    def get_verses_with_word(self, canto_number: int, word: str):
+        if self.count_word(canto_number, word) == 0:
+            return f"La parola '{word}' non viene mai utilizzata in questo Canto."
+        canto = self.__readlines_canto__(canto_number)
+        verse_list = []
+        for line in canto:
+            if word in line:
+                verse_list.append(f"{line}")
+        verses = "".join(verse_list)
+        return verses
 
 
 def main():
@@ -62,7 +74,7 @@ def main():
 
             # Exercise 2
             verses_of_canto = reader.count_verses(canto_to_read)
-            print(f"Versi del canto: {verses_of_canto}\n")
+            print(f"Versi del canto: {verses_of_canto}")
 
             # Exercise 3
             tercets_of_canto = reader.count_tercets(canto_to_read)
@@ -71,11 +83,15 @@ def main():
             # Exercise 4
             word = input("Fornisci una parola, per contare l'utilizzo: ")
             recurrence_word = reader.count_word(canto_to_read, word)
-            print(f"\nNumero di utilizzo della parola {word} nel {canto_to_read}: {recurrence_word}\n")
+            print(f"\nNumero di utilizzo della parola '{word}' nel {canto_to_read}: {recurrence_word}\n")
 
             # Exercise 5
             verse_with_word = reader.get_verse_with_word(canto_to_read, word)
-            print(verse_with_word)
+            print(f"Primo utilizzo della parola {word}: {verse_with_word}")
+
+            # Exercise 6
+            verses_with_word = reader.get_verses_with_word(canto_to_read, word)
+            print(f"{verses_with_word}\n")
 
             break
         except Exception as err:
