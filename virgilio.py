@@ -63,7 +63,6 @@ class Virgilio:
         return max(verses, key=len)
 
     def get_longest_canto(self):
-
         files_path = os.listdir(self.directory)
 
         canti = []
@@ -85,6 +84,21 @@ class Virgilio:
                 longest_canto["canto_number"] = canto["canto_number"]
                 longest_canto["canto_len"] = canto["canto_len"]
         return longest_canto
+
+    def count_words(self, canto_number: int, words: list[str]):
+        verse_list = self.__readlines_canto__(canto_number)
+        word_counts = {}
+
+        # init dictionary
+        for word in words:
+            word_counts[word] = 0
+
+        for verse in verse_list:
+            word_counts[word] = 0
+            for word in words:
+                word_counts[word] += verse.count(word)
+
+        return word_counts
 
 
 def main():
@@ -122,13 +136,16 @@ def main():
             # verses_with_word = reader.get_verses_with_word(canto_to_read, word)
             # print(f"Tutti gli utilizzi della parola '{word}: {verses_with_word}\n")
 
-            # # Exercise 6
+            # # Exercise 7
             # longest_verse = reader.get_longest_verse(canto_to_read)
             # print(f"Verso piu lungo del canto: {longest_verse}\n")
 
-            # Exercise 7
+            # Exercise 8
             longest_canto = reader.get_longest_canto()
             print(f"The longest canto is: {longest_canto}")
+
+            count_words = reader.count_words(canto_to_read, ["amore", "e", "spazio"])
+            print(count_words)
             break
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
