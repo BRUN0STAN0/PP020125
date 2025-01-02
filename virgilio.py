@@ -28,7 +28,8 @@ class Virgilio:
         return number_of_verses
 
     def count_tercets(self, canto_number: int):
-        return
+        number_of_verses = self.count_verses(canto_number)
+        return number_of_verses // 3
 
 
 def main():
@@ -42,7 +43,10 @@ def main():
             int(canto_to_read)
             canto = reader.read_canto_lines(canto_to_read)
             print(f"\n{canto}")
-            print(reader.count_verses(canto_to_read))
+            verses_of_canto = reader.count_verses(canto_to_read)
+            print(f"\nVersi del canto: {verses_of_canto}")
+            tercets_of_canto = reader.count_tercets(canto_to_read)
+            print(f"\nTerzine del canto: {tercets_of_canto}")
             break
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
