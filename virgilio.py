@@ -31,6 +31,11 @@ class Virgilio:
         number_of_verses = self.count_verses(canto_number)
         return number_of_verses // 3
 
+    def count_word(self, canto_numer: int, word: str):
+        canto = self.read_canto_lines(canto_numer)
+        recurrence_word = canto.count(word)
+        return recurrence_word
+
 
 def main():
     """This function allows you to call and execute the main program in an external module."""
@@ -41,12 +46,22 @@ def main():
         canto_to_read = input("\nPerfavore, fornisci un valido numero di Canto.\n\nCanto Numero: ")
         try:
             int(canto_to_read)
+            # Exercise 1
             canto = reader.read_canto_lines(canto_to_read)
-            print(f"\n{canto}")
+            print(f"\n{canto} \n")
+
+            # Exercise 2
             verses_of_canto = reader.count_verses(canto_to_read)
-            print(f"\nVersi del canto: {verses_of_canto}")
+            print(f"Versi del canto: {verses_of_canto}\n")
+
+            # Exercise 3
             tercets_of_canto = reader.count_tercets(canto_to_read)
-            print(f"\nTerzine del canto: {tercets_of_canto}")
+            print(f"Terzine del canto: {tercets_of_canto}\n")
+
+            # Exercise 4
+            word = input("Fornisci una parola, per contare l'utilizzo: ")
+            recurrence_word = reader.count_word(canto_to_read, word)
+            print(f"\nNumero di utilizzo della parola {word} nel {canto_to_read}: {recurrence_word}")
             break
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
