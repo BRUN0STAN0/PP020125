@@ -29,12 +29,22 @@ class Virgilio:
 
     def count_tercets(self, canto_number: int):
         number_of_verses = self.count_verses(canto_number)
-        return number_of_verses // 3
+        number_of_tercets = number_of_verses // 3
+        return number_of_tercets
 
-    def count_word(self, canto_numer: int, word: str):
-        canto = self.read_canto_lines(canto_numer)
+    def count_word(self, canto_number: int, word: str):
+        canto = self.read_canto_lines(canto_number)
         recurrence_word = canto.count(word)
         return recurrence_word
+
+    def get_verse_with_word(self, canto_number: int, word: str):
+        if self.count_word(canto_number, word) == 0:
+            return f"La parola '{word}' non viene mai utilizzata in questo Canto."
+        canto = self.__readlines_canto__(canto_number)
+        for line in canto:
+            if word in line:
+                verse = line
+        return verse
 
 
 def main():
@@ -61,7 +71,12 @@ def main():
             # Exercise 4
             word = input("Fornisci una parola, per contare l'utilizzo: ")
             recurrence_word = reader.count_word(canto_to_read, word)
-            print(f"\nNumero di utilizzo della parola {word} nel {canto_to_read}: {recurrence_word}")
+            print(f"\nNumero di utilizzo della parola {word} nel {canto_to_read}: {recurrence_word}\n")
+
+            # Exercise 5
+            verse_with_word = reader.get_verse_with_word(canto_to_read, word)
+            print(verse_with_word)
+
             break
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
