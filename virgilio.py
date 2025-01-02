@@ -94,7 +94,6 @@ class Virgilio:
             word_counts[word] = 0
 
         for verse in verse_list:
-            word_counts[word] = 0
             for word in words:
                 word_counts[word] += verse.count(word)
 
@@ -144,6 +143,7 @@ def main():
             longest_canto = reader.get_longest_canto()
             print(f"The longest canto is: {longest_canto}")
 
+            # Exercise 9
             count_words = reader.count_words(canto_to_read, ["amore", "e", "spazio"])
             print(count_words)
             break
