@@ -2,6 +2,12 @@ import os
 import traceback
 
 
+class CantoNotFoundError(Exception):
+    def __init__(self, message="canto_number must be between 1 and 34"):
+        self.message = message
+        super().__init__(f"{message}")
+
+
 class Virgilio:
     def __init__(self, directory: str):
         self.directory: str = self.__validate_directory__(directory)
@@ -40,7 +46,7 @@ class Virgilio:
     def __validate_canto_number__(self, canto_number: int):
         canti_numbers = self.__get_canti_numbers__()
         if canto_number not in canti_numbers:
-            raise FileNotFoundError(f"Il canto numero {canto_number} non esiste.")
+            raise CantoNotFoundError()
         return canto_number
 
     # Trova la parola in un canto
@@ -61,15 +67,24 @@ class Virgilio:
 
     # 1. Dato un numero, legge un intero canto restituitendo una stringa formattata.
 
-    def read_canto_lines(self, canto_number: int):
+    def read_canto_lines(self, canto_number: int, strip_lines: bool = False, num_lines: int = None):
+        try:
+            canto_number = int(canto_number)
+        except Exception as err:
+            raise TypeError(f"canto_number must be an integer. '{err}' is not valid")
+
         directory = self.directory
         canto_num = self.__validate_canto_number__(canto_number)
         file_name = f"Canto_{canto_num}.txt"
         file_path = os.path.join(directory, file_name)
         lines = []
         with open(file_path, "r", encoding="utf-8") as file:
-            for line in file.readlines():
-                lines.append(line.strip())
+            for index, line in enumerate(file.readlines()):
+                if num_lines is not None and index >= num_lines:
+                    break
+                if strip_lines is True:
+                    line = line.strip()
+                lines.append(line)
         return lines
 
     # 2. Conta quanti versi ha un canto.
@@ -149,9 +164,16 @@ class Virgilio:
         count_hell_verses = len(self.get_hell_verses())
         return count_hell_verses
 
-    # 12. Conta con un float la lunghezza media di tutti i versi dei canti dell'inferno
+    # 12. Restituisce un float rappresentante la lunghezza media di tutti i versi dei canti dell'inferno
     def get_hell_verse_mean_len(self):
-        return ""
+        hell_verses = self.get_hell_verses()
+        count_hell_verses = self.count_hell_verses()
+        sum_length = 0
+        for verse in hell_verses:
+            sum_length += len(verse)
+
+        mean_len = sum_length / count_hell_verses
+        return mean_len
 
 
 def main():
@@ -215,12 +237,22 @@ def main():
             # Exercise 10
             hell_verses = reader.get_hell_verses()
             for canto in hell_verses:
-                print(canto)
+                print(canto.strip())
 
             print("\nExercise 11")
             # Exercise 11
             count_hell_verses = reader.count_hell_verses()
-            print(count_hell_verses)
+            print(f"Il totale dei versi contenuti nell'inferno è pari a {count_hell_verses} ")
+
+            print("\nExercise 12")
+            # Exercise 12
+            hell_verses_mean_len = reader.get_hell_verse_mean_len()
+            print(f"La lunghezza media dei versi dell'inferno è pari a {hell_verses_mean_len:.2f} ")
+
+            print("\nExercise 13")
+            # Exercise 12
+            read_canto_lines_strip = reader.read_canto_lines(canto_to_read, True)
+            print(read_canto_lines_strip)
 
             break
         except Exception as err:
