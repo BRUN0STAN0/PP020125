@@ -3,6 +3,8 @@ import json
 
 
 class CantoNotFoundError(Exception):
+    """ Custom Exception raised when a requested canto number is out of range"""
+
     def __init__(self, message="canto_number must be between 1 and 34"):
         self.message = message
         super().__init__(f"{message}")
@@ -19,14 +21,15 @@ class Virgilio:
         # self.selected_verses: List[str] | None = None
 
     # EX-17. Controlla se esiste la directory
-
     def __validate_directory__(self, directory: str):
+        """Checks if the provided directory exists and is valid."""
         if not os.path.isdir(directory):
             raise NotADirectoryError(f"Error while opening file_path. You must to enter a valid directory.")
         return directory
 
     # Ritorna la lista di tutti i numeri dei canti presenti nella cartella [1,2,3,4,5...]
     def __get_canti_numbers__(self):
+        """Retrieves and sorts the numbers of available canti in the directory."""
         canti = os.listdir(self.directory)
         if not canti:
             raise FileNotFoundError("The directory given is empty")
@@ -39,14 +42,16 @@ class Virgilio:
 
     # Controlla se il numero "8" esiste come canto disponibile nella cartella
     def __validate_canto_number__(self, canto_number: int):
+        """Ensures the provided canto number exists among the available files."""
         canti_numbers = self.__get_canti_numbers__()
         # EX-16. verifichi se canto_number ha un valore incompatibile col numero dei Canti (che va da 1 a 34)
         if canto_number not in canti_numbers:
-            raise CantoNotFoundError("")
+            raise CantoNotFoundError()
         return canto_number
 
     # Trova la parola in un canto
     def __find_word_in_canto__(self, canto_number: int, word: str):
+        """Counts how many times a word appears in the specified canto"""
         canto = self.read_canto_lines(canto_number)
         recurrence_word: int = 0
         for lines in canto:
@@ -54,16 +59,13 @@ class Virgilio:
                 recurrence_word += 1
         return recurrence_word
 
-    def __format_lines__(self, lines: list[str]):
-        return "".join(lines)
-
 # ---------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------
 # ---------------------------------------------------------------------------------------
 
     # EX-1. Dato un numero, legge un intero canto restituitendo una stringa formattata.
     def read_canto_lines(self, canto_number: int, strip_lines: bool = False, num_lines: int = None):
-
+        """Reads the lines of a specified canto, optionally stripping whitespace or limiting the number of lines."""
         # EX-15. Verifica se canto_number è un int
         try:
             canto_number = int(canto_number)
@@ -89,22 +91,26 @@ class Virgilio:
 
     # EX-2. Conta quanti versi ha un canto.
     def count_verses(self, canto_number: int):
+        """Calculates the total number of verses in the specified canto"""
         list_verses = self.read_canto_lines(canto_number)
         number_of_verses = len(list_verses)
         return number_of_verses
 
     # EX-3. Conta quante terzine ci sono nel canto
     def count_tercets(self, canto_number: int):
+        """Determines the number of tercets (groups of three lines) in the canto."""
         number_of_tercets = self.count_verses(canto_number) // 3
         return number_of_tercets
 
     # EX-4. Conta quante ricorrenza ha la parola nel canto
     def count_word(self, canto_number: int, word: str):
+        """Finds how many times a specific word appears in a canto."""
         recurrencies = int(self.__find_word_in_canto__(canto_number, word))
         return recurrencies
 
     # EX-5. Trova il primo verso con la parola cercata
     def get_verse_with_word(self, canto_number: int, word: str):
+        """Identifies the first verse in the canto that contains the specified word."""
         canto = self.read_canto_lines(canto_number)
         for line in canto:
             if word in line:
@@ -115,6 +121,7 @@ class Virgilio:
     # EX-6. Trova tutti i versi con la parola cercata
 
     def get_verses_with_word(self, canto_number: int, word: str):
+        """Collects all verses containing a specific word from the canto."""
         canto = self.read_canto_lines(canto_number)
         verse_list = []
         for line in canto:
@@ -122,17 +129,18 @@ class Virgilio:
                 verse_list.append(f"{line}")
         if not verse_list:
             raise NameError("La parola non esiste in questo canto.")
-        verses_with_word = self.__format_lines__(verse_list)
-        return verses_with_word
+        return "".join(verse_list)
 
     # EX-7. Ottieni il verso piu lungo da un canto.
     def get_longest_verse(self, canto_number: int):
+        """Determines the longest verse from the specified canto."""
         canto = self.read_canto_lines(canto_number)
         longest_verse = max(canto, key=len)
         return longest_verse
 
     # EX-8. Ottieni il canto con piu versi dell'interno inferno, restituendo un dict['canto_number': int, 'canto_len': int]
     def get_longest_canto(self):
+        """Identifies the canto with the highest number of verses among all available."""
         canti_available = self.__get_canti_numbers__()
         longest_canto: dict[str, None | int] = {"canto_number": None, "canto_len": 0}
         for canto_number in canti_available:
@@ -145,6 +153,7 @@ class Virgilio:
 
     # EX-9. Conta le ricorrenze di una lista di parole utilizzata nel canto - Restituisce un dict["bello":str, 5:in-t]  Case sensitive
     def count_words(self, canto_number: int, words: list[str]):
+        """Computes the frequency of multiple words in a specified canto and saves the results to a JSON file."""
         count_words: dict[str, int] = {}
         for word in words:
             recurrencies = self.count_word(canto_number, word)
@@ -158,6 +167,7 @@ class Virgilio:
 
     # EX-10. Leggi tutti i versi dell'Inferno, in ordine dal primo a l'ultimo. List(str)
     def get_hell_verses(self):
+        """Gathers all verses from all available canti in sequential order."""
         canti_numbers = self.__get_canti_numbers__()
         hell_verses: list[str] = []
         for canto_number in canti_numbers:
@@ -167,11 +177,13 @@ class Virgilio:
 
     # EX-11. Conta tutti i versi dell'Inferno
     def count_hell_verses(self):
+        """Calculates the total number of verses across all available canti."""
         count_hell_verses = len(self.get_hell_verses())
         return count_hell_verses
 
     # EX-12. Restituisce un float rappresentante la lunghezza media di tutti i versi dei canti dell'inferno
     def get_hell_verse_mean_len(self):
+        """Computes the average length of all verses from the canti combined."""
         hell_verses = self.get_hell_verses()
         count_hell_verses = self.count_hell_verses()
         sum_length = 0
