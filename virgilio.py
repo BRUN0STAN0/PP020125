@@ -9,6 +9,7 @@ class CantoNotFoundError(Exception):
 
 
 class Virgilio:
+
     def __init__(self, directory: str):
         self.directory: str = self.__validate_directory__(directory)
 
@@ -18,28 +19,22 @@ class Virgilio:
         # self.selected_verses: List[str] | None = None
 
     # EX-17. Controlla se esiste la directory
+
     def __validate_directory__(self, directory: str):
         if not os.path.isdir(directory):
             raise NotADirectoryError(f"Error while opening file_path. You must to enter a valid directory.")
         return directory
 
-    # Ritorna la lista di tutti i nomi dei canti presenti nella cartella [Canto_1.txt,Canto_2.txt,Canto_3.txt,...]
-    def __get_file_names__(self):
-        files = os.listdir(self.directory)
-        if not files:
-            raise FileNotFoundError("The directory given is empty")
-        file_names: list[str] = []
-        for file in files:
-            file_names.append(file)
-        return files
-
     # Ritorna la lista di tutti i numeri dei canti presenti nella cartella [1,2,3,4,5...]
     def __get_canti_numbers__(self):
-        canti = self.__get_file_names__()
+        canti = os.listdir(self.directory)
+        if not canti:
+            raise FileNotFoundError("The directory given is empty")
         canti_numbers: list[int] = []
         for canto in canti:
-            canto_number = int(canto.split("_")[1].split(".")[0])
-            canti_numbers.append(canto_number)
+            if canto.startswith("Canto_"):
+                canto_number = int(canto.split("_")[1].split(".")[0])
+                canti_numbers.append(canto_number)
         return sorted(canti_numbers)
 
     # Controlla se il numero "8" esiste come canto disponibile nella cartella
@@ -47,7 +42,7 @@ class Virgilio:
         canti_numbers = self.__get_canti_numbers__()
         # EX-16. verifichi se canto_number ha un valore incompatibile col numero dei Canti (che va da 1 a 34)
         if canto_number not in canti_numbers:
-            raise CantoNotFoundError()
+            raise CantoNotFoundError("")
         return canto_number
 
     # Trova la parola in un canto
@@ -85,8 +80,10 @@ class Virgilio:
                 # 14. Nel caso in cui num_lines venga valorizzato, il metodo legge solo un numero di righe pari ad esso,
                 if num_lines is not None and index >= num_lines:
                     break
+
+                # EX-13 - Strip lines
                 if strip_lines is True:
-                    line = line.strip()
+                    line = line.strip() + "\n"  # Rimuovo e pulisco l'inizio e la fine di ogni versetto, ma ci riaggiungo un a capo.
                 lines.append(line)
         return lines
 
@@ -111,11 +108,12 @@ class Virgilio:
         canto = self.read_canto_lines(canto_number)
         for line in canto:
             if word in line:
-                return line
-        if not line:
+                if line:
+                    return line
             raise NameError("La parola non esiste in questo canto.")
 
     # EX-6. Trova tutti i versi con la parola cercata
+
     def get_verses_with_word(self, canto_number: int, word: str):
         canto = self.read_canto_lines(canto_number)
         verse_list = []
@@ -186,70 +184,95 @@ class Virgilio:
 
 def main():
     """This function allows you to call and execute the main program in an external module."""
-    directory_path = "ciao"
+
+    exercise_titles = {
+        1: "Leggi un canto",
+        2: "Conta i versi di un canto",
+        3: "Conta le terzine di un canto",
+        4: "Conta l'utilizzo di una parola in un canto",
+        5: "Trova il verso con una parola in un canto",
+        6: "Trova tutti i versi con una parola in un canto",
+        7: "Trova il verso più lungo in un canto",
+        8: "Trova il canto più lungo dell'inferno",
+        9: "Conta specifiche parole in un canto",
+        10: "Trova i versi dell'inferno",
+        11: "Conta i versi dell'inferno",
+        12: "Lunghezza media dei versi dell'inferno",
+        13: "Leggi un canto senza spazi inutili",
+    }
+
+    directory_path = "canti"
     reader = Virgilio(directory_path)
-
     while True:
-        canto_to_read = input("\nPerfavore, fornisci un valido numero di Canto.\n\nCanto Numero: ")
+        print("Menu:")
+        for key, title in exercise_titles.items():
+            print(f"{key}. {title}")
+        print("0. Esci")
         try:
-            print("\nExercise 1")
-            canto = reader.read_canto_lines(canto_to_read)
-            print(f"\n{canto}")
-
-            print("\nExercise 2")
-            verses_of_canto = reader.count_verses(canto_to_read)
-            print(f"Versi del canto: {verses_of_canto}")
-
-            print("\nExercise 3")
-            tercets_of_canto = reader.count_tercets(canto_to_read)
-            print(f"Terzine del canto: {tercets_of_canto}")
-
-            print("\nExercise 4")
-            word = input("Fornisci una parola, per contare l'utilizzo: ")
-            recurrence_word = reader.count_word(canto_to_read, word)
-            print(f"Numero di utilizzo della parola '{word}' nel {canto_to_read}: {recurrence_word}")
-
-            print("\nExercise 5")
-            verse_with_word = reader.get_verse_with_word(canto_to_read, word)
-            print(f"Primo utilizzo della parola '{word}': {verse_with_word}")
-
-            print("\nExercise 6")
-            verses_with_word = reader.get_verses_with_word(canto_to_read, word)
-            print(f"Tutti gli utilizzi della parola '{word}: {verses_with_word}")
-
-            print("\nExercise 7")
-            longest_verse = reader.get_longest_verse(canto_to_read)
-            print(f"Verso piu lungo del canto: {longest_verse}")
-
-            print("\nExercise 8")
-            longest_canto = reader.get_longest_canto()
-            print(f"Il canto piu lungo è il {longest_canto["canto_number"]} con una lunghezza pari a {longest_canto["canto_len"]}")
-
-            print("\nExercise 9")
-            count_words = reader.count_words(canto_to_read, ["amore", "e", "spazio"])
-            for key, value in count_words.items():
-                print(f"La parola {key} è comparsa {value}")
-
-            print("\nExercise 10")
-            hell_verses = reader.get_hell_verses()
-            for canto in hell_verses:
-                print(canto.strip())
-
-            print("\nExercise 11")
-            count_hell_verses = reader.count_hell_verses()
-            print(f"Il totale dei versi contenuti nell'inferno è pari a {count_hell_verses} ")
-
-            print("\nExercise 12")
-            hell_verses_mean_len = reader.get_hell_verse_mean_len()
-            print(f"La lunghezza media dei versi dell'inferno è pari a {hell_verses_mean_len:.2f} ")
-
-            print("\nExercise 13")
-            read_canto_lines_strip = reader.read_canto_lines(canto_to_read, True)
-            print(read_canto_lines_strip)
-
-            break
+            exercise = int(input("\nSELEZIONA ESERCIZIO - Seleziona un esercizio (0 per uscire).\nEsercizio numero = "))
+            if exercise == 0:
+                print("Uscita dal programma.")
+                break
+            if exercise in exercise_titles:
+                print(f"'{exercise}. {exercise_titles[exercise]}'\n")
+            if exercise in [1, 2, 3, 4, 5, 6, 7, 9, 13]:
+                canto_to_read = input("SELEZIONA CANTO - Inserisci quale canto vorresti leggere.\nCanto numero = ")
+            if exercise == 0:
+                print("Uscita dal programma.")
+                break
+            if exercise == 1:
+                canto = reader.read_canto_lines(canto_to_read)
+                print("".join(canto))
+            elif exercise == 2:
+                verses_of_canto = reader.count_verses(canto_to_read)
+                print(f"Versi del canto: {verses_of_canto}")
+            elif exercise == 3:
+                tercets_of_canto = reader.count_tercets(canto_to_read)
+                print(f"Terzine del canto: {tercets_of_canto}")
+            elif exercise == 4:
+                word = input("Fornisci una parola: ")
+                recurrence_word = reader.count_word(canto_to_read, word)
+                print(f"Numero di utilizzo della parola '{word}': {recurrence_word}")
+            elif exercise == 5:
+                word = input("Fornisci una parola: ")
+                verse_with_word = reader.get_verse_with_word(canto_to_read, word)
+                print(f"Primo utilizzo della parola '{word}': {verse_with_word}")
+            elif exercise == 6:
+                word = input("Fornisci una parola: ")
+                verses_with_word = reader.get_verses_with_word(canto_to_read, word)
+                print(f"Tutti gli utilizzi della parola '{word}': {verses_with_word}")
+            elif exercise == 7:
+                longest_verse = reader.get_longest_verse(canto_to_read)
+                print(f"Verso più lungo: {longest_verse}")
+            elif exercise == 8:
+                longest_canto = reader.get_longest_canto()
+                print(f"Il canto più lungo dell'inferno è il {longest_canto['canto_number']} con una lunghezza pari a {longest_canto['canto_len']} versi")
+            elif exercise == 9:
+                how_much_word = int(input("Quante parole vorresti cercare? "))
+                words = []
+                for index in range(1, how_much_word+1):
+                    words.append(input(f"{index}. Give me a word = "))
+                count_words = reader.count_words(canto_to_read, words)
+                for key, value in count_words.items():
+                    print(f"La parola {key} è comparsa {value} volte.")
+            elif exercise == 10:
+                hell_verses = reader.get_hell_verses()
+                for canto in hell_verses:
+                    print(canto.strip())
+            elif exercise == 11:
+                count_hell_verses = reader.count_hell_verses()
+                print(f"Il totale dei versi contenuti nell'inferno è pari a {count_hell_verses}")
+            elif exercise == 12:
+                hell_verses_mean_len = reader.get_hell_verse_mean_len()
+                print(f"La lunghezza media dei versi dell'inferno è pari a {hell_verses_mean_len:.2f}")
+            elif exercise == 13:
+                read_canto_lines_strip = reader.read_canto_lines(canto_to_read, True)
+                print(''.join(read_canto_lines_strip))
+            else:
+                print("Scelta non valida. Perfavore, seleziona un'opzione dal menu.")
         except Exception as err:
             print(f"{type(err).__name__}: {err}")
+        input("\n---\nFINE - Premi Invio per continuare -> ")
 
 
 # Main Program start automatically when started from the source file.
